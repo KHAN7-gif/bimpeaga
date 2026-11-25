@@ -19,3 +19,15 @@ document.getElementById('detail').showModal=()=>{};document.getElementById('rows
 assert.equal(teamLabel(0),'MAS A - SABAH A');assert.equal(teamLabel(5),'MAS C - F.T. LABUAN');assert.equal(teamLabel(6),'BRUNEI DARUSSALAM');
 `,ctx);
 console.log('Passed: 229 medals, all eight sport totals, nine delegation reconciliations, rankings and ties, Labuan details, search and pending Silat.');
+vm.runInContext(`
+const labuanChange=movement('Overall',5);assert.equal(labuanChange.rankDelta,0);assert.equal(labuanChange.medalDelta,6);assert.equal(labuanChange.medals.join(),'1,1,4');
+assert.equal(movement('Lawn Bowls',0).rankDelta,1);assert.equal(movement('Archery',3).rankDelta,-1);
+assert.equal(movement('Badminton',5).isNew,true);assert.equal(movement('E-Sports',0).isNew,true);assert.equal(movement('Pencak Silat',0),null);
+assert(rankChange('Lawn Bowls',0).includes('↑1'));assert(rankChange('Archery',3).includes('↓1'));assert(rankChange('Overall',5).includes('Kedudukan kekal'));
+assert.equal(resultsRevision.updatedAt,'2026-11-25T14:59:39Z');assert(revisionDate(resultsRevision.updatedAt).includes('22:59'));
+sport='Overall';document.getElementById('search').value='';render();const timestamp=document.getElementById('resultRevision').innerHTML;assert(timestamp.includes('+109 pingat'));assert(document.getElementById('rows').innerHTML.includes('+6'));
+document.getElementById('rows').onclick({target:{closest:()=>({dataset:{team:'5'}})}});assert(document.getElementById('detailMovement').innerHTML.includes('+6 pingat'));
+sport='Badminton';render();assert(document.getElementById('resultRevision').innerHTML.includes('Tiada rekod perbandingan'));
+sport='Overall';render();assert.equal(document.getElementById('resultRevision').innerHTML,timestamp);
+`,ctx);
+console.log('Passed: Malaysia result timestamp, comparison baseline, rank rises/falls/ties, medal additions and unknown prior results.');
