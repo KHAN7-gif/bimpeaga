@@ -4,30 +4,20 @@ const ctx={document:{getElementById:el,querySelector:()=>({})},console,assert};
 vm.createContext(ctx);vm.runInContext(fs.readFileSync('dist/app.js','utf8'),ctx);
 vm.runInContext(`
 assert.equal(sports.length,9);
-const expectedTotals={Overall:[73,73,83],Swimming:[31,31,31],Badminton:[5,5,5],'E-Sports':[4,4,4],Karate:[5,5,8],Archery:[10,10,14],Athletics:[14,14,14],'Lawn Bowls':[3,3,6],'Sepak Takraw':[1,1,1]};
+const expectedTotals={Overall:[98,98,116],Swimming:[31,31,31],Badminton:[5,5,5],'E-Sports':[4,4,4],Karate:[5,5,10],Archery:[14,14,14],Athletics:[22,22,22],'Lawn Bowls':[5,5,10],'Sepak Takraw':[4,4,4],'Pencak Silat':[8,8,16]};
 for(const [name,expected] of Object.entries(expectedTotals)){sport=name;render();assert.equal(total().join(),expected.join(),name+' medal totals');assert.equal(visible.length,9);assert.equal(document.getElementById('download').disabled,false);}
-for(let i=0;i<9;i++)for(let j=0;j<3;j++)assert.equal(sports.reduce((v,s)=>v+(data[s]?.[i][j]??0),0),data.Overall[i][j],teams[i][0]+' reconciliation');
-sport='Overall';render();assert.equal(sum(total()),229);assert.equal(sum(data.Overall[5]),10);assert.equal(overallStanding(5).rank,6);assert(document.getElementById('rows').innerHTML.includes('labuan-highlight'));
-sport='Lawn Bowls';render();assert.equal(visible.find(r=>r.i===1).rank,1);assert.equal(visible.find(r=>r.i===5).rank,1);assert.equal(visible.find(r=>r.i===0).rank,3);
-sport='Badminton';render();assert.equal(visible.find(r=>r.i===5).rank,3);
-sport='E-Sports';render();assert.equal(visible[0].i,3);assert(!document.getElementById('subtitle').textContent.includes('kategori'));
-for(let i=0;i<9;i++){const rows=rankedSports(i);assert.equal(rows.at(-1)[0],'Pencak Silat');const m=rows.filter(([,v])=>v).map(([,v])=>v[i]);for(let j=1;j<m.length;j++)assert(compareMedals(m[j-1],m[j])<=0);}
+for(let i=0;i<9;i++)for(let j=0;j<3;j++)assert.equal(sports.reduce((v,s)=>v+data[s][i][j],0),data.Overall[i][j],teams[i][0]+' reconciliation');
+sport='Overall';render();assert.equal(sum(total()),312);assert.equal(visible.map(r=>r.i).join(),'0,1,2,3,5,4,6,7,8');assert.equal(sum(data.Overall[5]),15);assert.equal(overallStanding(5).rank,5);assert(document.getElementById('rows').innerHTML.includes('labuan-highlight'));
+sport='Lawn Bowls';render();assert.equal(visible[0].i,5);assert.equal(visible[1].i,0);assert.equal(visible[2].i,1);
+sport='Sepak Takraw';render();assert.equal(visible[0].i,0);assert.equal(visible.find(r=>r.i===3).rank,5);assert.equal(visible.find(r=>r.i===5).rank,5);
+sport='Pencak Silat';render();assert.equal(visible[0].i,0);assert.equal(visible.find(r=>r.i===5).rank,4);assert(movement('Pencak Silat',5).isNew);
+for(let i=0;i<9;i++){const rows=rankedSports(i).map(([,v])=>v[i]);for(let j=1;j<rows.length;j++)assert(compareMedals(rows[j-1],rows[j])<=0);}
 assert.equal(rankedSports(0)[0][0],'Swimming');assert.equal(rankedSports(5)[0][0],'Lawn Bowls');
-sport='Pencak Silat';render();assert.equal(visible.length,0);assert(document.getElementById('rows').innerHTML.includes('Belum ada keputusan'));assert(document.getElementById('download').disabled);
-sport='Overall';document.getElementById('search').value='Labuan';render();assert.equal(visible.length,1);assert.equal(visible[0].i,5);assert.equal(visible[0].rank,6);
-document.getElementById('detail').showModal=()=>{};document.getElementById('rows').onclick({target:{closest:()=>({dataset:{team:'5'}})}});assert(document.getElementById('detailRank').innerHTML.includes('#6'));assert(document.getElementById('detailSub').textContent.includes('10 total medals'));
-assert.equal(teamLabel(0),'MAS A - SABAH A');assert.equal(teamLabel(5),'MAS C - F.T. LABUAN');assert.equal(teamLabel(6),'BRUNEI DARUSSALAM');
+const change=movement('Overall',5);assert.equal(change.rankDelta,1);assert.equal(change.medalDelta,5);assert.equal(change.medals.join(),'1,3,1');assert(rankChange('Overall',5).includes('↑1'));assert.equal(movement('Overall',4).rankDelta,-1);assert.equal(movement('Overall',3).medals[0],-1);
+sport='Overall';document.getElementById('search').value='Labuan';render();assert.equal(visible.length,1);assert.equal(visible[0].rank,5);
+document.getElementById('detail').showModal=()=>{};document.getElementById('rows').onclick({target:{closest:()=>({dataset:{team:'5'}})}});assert(document.getElementById('detailRank').innerHTML.includes('#5'));assert(document.getElementById('detailSub').textContent.includes('15 total medals'));assert(document.getElementById('detailMovement').innerHTML.includes('Naik 1 kedudukan'));assert(document.getElementById('detailMovement').innerHTML.includes('+5 pingat'));
+assert.equal(resultsRevision.sourceDate,'2026-11-26');assert.equal(resultsRevision.previousUpdatedAt,'2026-11-25T14:59:39Z');assert(revisionDate(resultsRevision.updatedAt).includes('12:05'));assert(document.getElementById('resultRevision').innerHTML.includes('26 November 2026'));assert(document.getElementById('resultRevision').innerHTML.includes('+83 pingat'));
+const saved=data['Pencak Silat'];data['Pencak Silat']=null;sport='Pencak Silat';render();assert(document.getElementById('download').disabled);assert.equal(visible.length,0);data['Pencak Silat']=saved;
+assert.equal(teamLabel(5),'MAS C - F.T. LABUAN');assert.equal(teamLabel(6),'BRUNEI DARUSSALAM');
 `,ctx);
-console.log('Passed: 229 medals, all eight sport totals, nine delegation reconciliations, rankings and ties, Labuan details, search and pending Silat.');
-vm.runInContext(`
-const labuanChange=movement('Overall',5);assert.equal(labuanChange.rankDelta,0);assert.equal(labuanChange.medalDelta,6);assert.equal(labuanChange.medals.join(),'1,1,4');
-assert.equal(movement('Lawn Bowls',0).rankDelta,1);assert.equal(movement('Archery',3).rankDelta,-1);
-assert.equal(movement('Badminton',5).isNew,true);assert.equal(movement('E-Sports',0).isNew,true);assert.equal(movement('Pencak Silat',0),null);
-assert(rankChange('Lawn Bowls',0).includes('↑1'));assert(rankChange('Archery',3).includes('↓1'));assert(rankChange('Overall',5).includes('Kedudukan kekal'));
-assert.equal(resultsRevision.updatedAt,'2026-11-25T14:59:39Z');assert(revisionDate(resultsRevision.updatedAt).includes('22:59'));
-sport='Overall';document.getElementById('search').value='';render();const timestamp=document.getElementById('resultRevision').innerHTML;assert(timestamp.includes('+109 pingat'));assert(document.getElementById('rows').innerHTML.includes('+6'));
-document.getElementById('rows').onclick({target:{closest:()=>({dataset:{team:'5'}})}});assert(document.getElementById('detailMovement').innerHTML.includes('+6 pingat'));
-sport='Badminton';render();assert(document.getElementById('resultRevision').innerHTML.includes('Tiada rekod perbandingan'));
-sport='Overall';render();assert.equal(document.getElementById('resultRevision').innerHTML,timestamp);
-`,ctx);
-console.log('Passed: Malaysia result timestamp, comparison baseline, rank rises/falls/ties, medal additions and unknown prior results.');
+console.log('Passed: 312 medals, nine sport totals, nine team reconciliations, ranks/ties, Labuan #5 and +5 medals, corrected gold, source date and comparison history.');
