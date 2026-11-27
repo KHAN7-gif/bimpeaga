@@ -21,3 +21,5 @@ const saved=data['Pencak Silat'];data['Pencak Silat']=null;sport='Pencak Silat';
 assert.equal(teamLabel(5),'MAS C - F.T. LABUAN');assert.equal(teamLabel(6),'BRUNEI DARUSSALAM');
 `,ctx);
 console.log('Passed: 312 medals, nine sport totals, nine team reconciliations, ranks/ties, Labuan #5 and +5 medals, corrected gold, source date and comparison history.');
+
+vm.runInContext(`sport='Overall';document.getElementById('search').value='';render();for(const medal of ['🥇','🥈','🥉'])assert(document.getElementById('rows').innerHTML.includes(medal));assert(document.getElementById('rows').innerHTML.includes('labuan-highlight'));assert.equal(rankDisplay(5),'5');assert(rankDisplay(1).includes('Kedudukan 1'));assert.equal(resultsRevision.updatedAt,'2026-11-27T04:05:11Z');`,ctx);assert(fs.readFileSync('dist/index.html','utf8').includes('Kejohanan Tamat'));console.log('Passed: completed status, podium medals and retained Labuan highlight.');
